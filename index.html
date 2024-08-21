@@ -1,165 +1,321 @@
 <!DOCTYPE html>
 <html>
+
 <head>
-    <meta charset="utf-8">
-    <title>Hello, World!</title>
+	<meta charset="utf-8">
+	<title>Hello, World!</title>
+	<style>
+		body {
+			font-family: Arial, sans-serif;
+			background-color: #f0f0f5;
+			margin: 0;
+			padding: 20px;
+			display: flex;
+			flex-direction: column;
+			align-items: center;
+			color: #333;
+		}
+
+		h1 {
+			margin-bottom: 20px;
+			font-size: 2em;
+			color: #333;
+		}
+
+		button {
+			padding: 10px 20px;
+			margin: 10px;
+			font-size: 1em;
+			color: #fff;
+			background-color: #007bff;
+			border: none;
+			border-radius: 5px;
+			cursor: pointer;
+		}
+
+		button:hover {
+			background-color: #0056b3;
+		}
+
+		.user,
+		.saved {
+			display: flex;
+			flex-direction: column;
+			align-items: center;
+			margin-top: 10px;
+			padding: 20px;
+			border: 1px solid #ddd;
+			border-radius: 10px;
+			background-color: #fff;
+			width: 100%;
+			max-width: 400px;
+			box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+		}
+
+		.user img,
+		.saved img {
+			border-radius: 50%;
+			width: 100px;
+			height: 100px;
+			object-fit: cover;
+			margin-bottom: 15px;
+		}
+
+		h2 {
+			font-size: 1.5em;
+			margin: 10px 0;
+		}
+
+		p {
+			margin: 5px 0;
+			font-size: 0.9em;
+			color: #666;
+		}
+
+		.toast {
+			visibility: hidden;
+			min-width: 200px;
+			margin-left: -100px;
+			background-color: #333;
+			color: #fff;
+			text-align: center;
+			border-radius: 5px;
+			padding: 16px;
+			position: fixed;
+			z-index: 1;
+			left: 50%;
+			bottom: 30px;
+			font-size: 17px;
+			opacity: 0;
+			transition: opacity 0.6s, visibility 0.6s;
+		}
+
+		.toast.show {
+			visibility: visible;
+			opacity: 1;
+		}
+
+		.user.user-container {
+			background-color: transparent;
+			border: none;
+			box-shadow: none;
+
+		}
+
+		.saved {
+			background-color: transparent;
+			border: none;
+			box-shadow: none;
+		}
+
+		.saved h3 {
+			margin-bottom: 20px;
+			font-size: 2em;
+			color: #333;
+			margin-top: 0;
+		}
+
+		@media (max-width: 460px) {
+			.buttons {
+				display: flex;
+				flex-direction: column;
+			}
+
+			h1 {
+				text-align: center;
+			}
+		}
+	</style>
 </head>
+
 <body id="body">
-<h1>Random User Generator</h1>
-<button id="get-user-button" onclick="fetchUser()">Get User</button>
-<button id="save-users-button" onclick="saveUsers()">Save Users</button>
-<div class="user" id="user"></div>
+	<h1>Random User Generator</h1>
+	<div class="buttons">
+		<button id="get-user-button" onclick="fetchUser()">Get User</button>
+		<button id="save-users-button" onclick="saveUsers()">Save User</button>
+		<button id="clean-users-button" onclick="clearUsers()">Clear Users</button>
+	</div>
+	<h1 class="get-title">Get a user</h1>
+	<div class="user user-container" id="user"></div>
+	<div id="toast" class="toast"></div>
 
-<script>
-    let users = [];
+	<script>
+		let users = [];
 
-    fetchUser();
+		if (sessionStorage.length > 0) {
+			const savedUsersDiv = document.createElement("div");
+			savedUsersDiv.setAttribute("class", "saved");
+			savedUsersDiv.setAttribute("id", "saved");
+			savedUsersDiv.innerHTML = "<h3>Saved Users</h3>";
+			const userContainer = document.getElementById("user");
+			userContainer.after(savedUsersDiv);
+			displaySavedUsers();
+		}
 
-    if (sessionStorage.length > 0) {
-        const savedUsersDiv = document.createElement("div");
-        savedUsersDiv.setAttribute("class", "saved");
-        savedUsersDiv.setAttribute("id", "saved");
-        savedUsersDiv.innerHTML = "<h3>Saved Users</h3>";
-        const userContainer = document.getElementById("user");
-        userContainer.after(savedUsersDiv);
-        displaySavedUsers();
-    }
+		async function fetchUser() {
+			try {
+				const result = await fetch("https://randomuser.me/api/");
+				const data = await result.json()
 
-    async function fetchUser() {
-        try {
-            const result = await fetch("https://randomuser.me/api/");
-            const data = await result.json()
+				const largePicture = data.results[0].picture.large;
+				const firstName = data.results[0].name.first;
+				const lastName = data.results[0].name.last;
+				const email = data.results[0].email;
+				const password = data.results[0].login.password;
+				const city = data.results[0].location.city;
+				const country = data.results[0].location.country;
+				const gender = data.results[0].gender;
+				const phone = data.results[0].phone;
+				const dateOfBirth = data.results[0].dob.date;
 
-            const largePicture = data.results[0].picture.large;
-            const firstName = data.results[0].name.first;
-            const lastName = data.results[0].name.last;
-            const email = data.results[0].email;
-            const password = data.results[0].login.password;
-            const city = data.results[0].location.city;
-            const country = data.results[0].location.country;
-            const gender = data.results[0].gender;
-            const phone = data.results[0].phone;
-            const dateOfBirth = data.results[0].dob.date;
+				const user = {
+					largePicture,
+					firstName,
+					lastName,
+					email,
+					password,
+					city,
+					country,
+					gender,
+					phone,
+					dateOfBirth
+				}
 
-            const user = {
-                largePicture,
-                firstName,
-                lastName,
-                email,
-                password,
-                city,
-                country,
-                gender,
-                phone,
-                dateOfBirth
-            }
+				users.push(user);
+				const getUserText = document.querySelector(".get-title");
+				if (getUserText) {
+					getUserText.remove();
+				}
 
-            users.push(user);
+				addToHtml("user", largePicture, firstName, lastName,
+					email, password, city, country,
+					gender, phone, dateOfBirth);
 
-            addToHtml("user", largePicture, firstName, lastName,
-                email, password, city, country,
-                gender, phone, dateOfBirth);
+			} catch (error) {
+				showToast("Failed to fetch users " + error);
+			}
+		}
 
-        } catch (error) {
-            alert(error);
-        }
-    }
+		function addToHtml(element, largePicture, firstName, lastName,
+			email, password, city, country,
+			gender, phone, dateOfBirth) {
+			// Create elements
+			const div = document.getElementById(element);
+			if (element === "user") {
+				div.innerHTML = '';
+			}
 
-    function addToHtml(element, largePicture, firstName, lastName,
-                       email, password, city, country,
-                       gender, phone, dateOfBirth) {
-        // Create elements
-        const div = document.getElementById(element);
+			const divUser = document.createElement("div");
+			divUser.classList.add('user');
 
-        const divUser = document.createElement("div");
-        divUser.classList.add('user');
+			const image = document.createElement("img");
+			image.setAttribute("alt", "Large Image");
+			image.setAttribute("class", "photo");
+			image.setAttribute("src", largePicture);
 
-        const image = document.createElement("img");
-        image.setAttribute("alt", "Large Image");
-        image.setAttribute("class", "photo");
-        image.setAttribute("src", largePicture);
+			const h2 = document.createElement("h2");
+			h2.textContent = firstName + " " + lastName;
+			h2.setAttribute("class", "name");
 
-        const h2 = document.createElement("h2");
-        h2.textContent = firstName + " " + lastName;
-        h2.setAttribute("class", "name");
+			const emailP = document.createElement("p");
+			emailP.setAttribute("class", "email");
+			emailP.textContent = "Email: " + email;
 
-        const emailP = document.createElement("p");
-        emailP.setAttribute("class", "email");
-        emailP.textContent = "Email: " + email;
+			const passwordP = document.createElement("p");
+			passwordP.setAttribute("class", "password");
+			passwordP.textContent = "Password: " + password;
 
-        const passwordP = document.createElement("p");
-        passwordP.setAttribute("class", "password");
-        passwordP.textContent = "Password: " + password;
+			const genderP = document.createElement("p");
+			genderP.setAttribute("class", "gender");
+			genderP.textContent = "Gender: " + gender;
 
-        const genderP = document.createElement("p");
-        genderP.setAttribute("class", "gender");
-        genderP.textContent = "Gender: " + gender;
+			const phoneP = document.createElement("p");
+			phoneP.setAttribute("class", "phone");
+			phoneP.textContent = "Phone: " + phone;
 
-        const phoneP = document.createElement("p");
-        phoneP.setAttribute("class", "phone");
-        phoneP.textContent = "Phone: " + phone;
+			const locationP = document.createElement("p");
+			locationP.setAttribute("class", "location");
+			locationP.textContent = "Location: " + city + ", " + country;
 
-        const locationP = document.createElement("p");
-        locationP.setAttribute("class", "location");
-        locationP.textContent = "Location: " + city + ", " + country;
+			const birthdayP = document.createElement("p");
+			birthdayP.setAttribute("class", "birthday");
+			const datePattern = /^\d{4}-\d{2}-\d{2}/;
+			const dateMatch = dateOfBirth.match(datePattern);
+			const originalDateString = dateMatch[0];
+			const originalArray = originalDateString.split("-");
+			const modifiedFormat = originalArray[2] + "/" + originalArray[1] + "/" + originalArray[0];
+			birthdayP.textContent = "Birthday: " + modifiedFormat;
 
-        const birthdayP = document.createElement("p");
-        birthdayP.setAttribute("class", "birthday");
-        const datePattern = /^\d{4}-\d{2}-\d{2}/;
-        const dateMatch = dateOfBirth.match(datePattern);
-        const originalDateString = dateMatch[0];
-        const originalArray = originalDateString.split("-");
-        const modifiedFormat = originalArray[2] + "/" + originalArray[1] + "/" + originalArray[0];
-        birthdayP.textContent = "Birthday: " + modifiedFormat;
+			// Append elements
+			divUser.append(h2);
+			divUser.append(passwordP);
+			divUser.append(emailP);
+			divUser.append(locationP);
+			divUser.append(genderP);
+			divUser.append(phoneP);
+			divUser.append(birthdayP);
+			divUser.append(image);
 
-        // Append elements
-        divUser.append(h2);
-        divUser.append(passwordP);
-        divUser.append(emailP);
-        divUser.append(locationP);
-        divUser.append(genderP);
-        divUser.append(phoneP);
-        divUser.append(birthdayP);
-        divUser.append(image);
+			div.append(divUser);
+		}
 
-        div.append(divUser);
-    }
+		function saveUsers() {
+			sessionStorage.clear();
 
-    function saveUsers() {
-        sessionStorage.clear();
+			users.forEach((user, index) => {
+				sessionStorage.setItem(index, JSON.stringify(user));
+			});
 
-        users.forEach((user, index) => {
-            sessionStorage.setItem(index, JSON.stringify(user));
-        });
+			let savedUsersDiv = document.getElementById("saved");
+			if (!savedUsersDiv) {
+				savedUsersDiv = document.createElement("div");
+				savedUsersDiv.setAttribute("class", "saved");
+				savedUsersDiv.setAttribute("id", "saved");
+				savedUsersDiv.innerHTML = "<h3>Saved Users</h3>";
+				const userContainer = document.getElementById("user");
+				userContainer.after(savedUsersDiv);
+			}
 
-        let savedUsersDiv = document.getElementById("saved");
-        if (!savedUsersDiv) {
-            savedUsersDiv = document.createElement("div");
-            savedUsersDiv.setAttribute("class", "saved");
-            savedUsersDiv.setAttribute("id", "saved");
-            savedUsersDiv.innerHTML = "<h3>Saved Users</h3>";
-            const userContainer = document.getElementById("user");
-            userContainer.after(savedUsersDiv);
-        }
+			displaySavedUsers();
+		}
 
-        displaySavedUsers();
-    }
+		function displaySavedUsers() {
+			const savedUsersDiv = document.getElementById("saved");
+			if (!savedUsersDiv) return;
 
-    function displaySavedUsers() {
-        const savedUsersDiv = document.getElementById("saved");
-        if (!savedUsersDiv) return;
+			savedUsersDiv.innerHTML = "<h3>Saved Users</h3>";  // Clear existing content
 
-        savedUsersDiv.innerHTML = "<h3>Saved Users</h3>";  // Clear existing content
+			if (sessionStorage.length > 0) {
+				for (let i = 0; i < sessionStorage.length; i++) {
+					const user = JSON.parse(sessionStorage.getItem(i));
+					addToHtml("saved", user.largePicture, user.firstName, user.lastName,
+						user.email, user.password, user.city, user.country,
+						user.gender, user.phone, user.dateOfBirth);
+				}
+			}
+		}
 
-        if (sessionStorage.length > 0) {
-            for (let i = 0; i < sessionStorage.length; i++) {
-                const user = JSON.parse(sessionStorage.getItem(i));
-                addToHtml("saved", user.largePicture, user.firstName, user.lastName,
-                    user.email, user.password, user.city, user.country,
-                    user.gender, user.phone, user.dateOfBirth);
-            }
-        }
-    }
-</script>
+		function clearUsers() {
+			sessionStorage.clear();
+			users = [];
+
+			const savedUsersDiv = document.getElementById("saved");
+			if (savedUsersDiv) {
+				savedUsersDiv.remove();
+			}
+
+			showToast("All saved users have been cleared");
+		}
+
+		function showToast(message) {
+			const toast = document.getElementById("toast");
+			toast.textContent = message;
+			toast.className = "toast show";
+			setTimeout(() => {
+				toast.className = "toast";
+			}, 3000);
+		}
+	</script>
 </body>
+
 </html>
