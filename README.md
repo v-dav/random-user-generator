@@ -7,6 +7,9 @@
 
 The Random User Generator is a web application that fetches random user data from an API and displays it on the web page. Users can save the fetched user data in the session storage and view the saved users anytime during the session.
 
+## Live [HERE](https://v-dav.github.io/random-user-generator/)
+![Skärmavbild 2024-08-21 kl  17 02 02](https://github.com/user-attachments/assets/78699988-3a54-49e1-9bd4-e008c52321fc)
+
 ## Features
 
 - Fetch and display random user data
