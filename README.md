@@ -3,12 +3,15 @@
 ![JavaScript](https://img.shields.io/badge/JavaScript-ES6+-F7DF1E?style=for-the-badge&logo=javascript&logoColor=black)
 ![HTML](https://img.shields.io/badge/HTML-5-E34F26?style=for-the-badge&logo=html5&logoColor=white)
 
+![chrome-capture-2024-8-24 (1)](https://github.com/user-attachments/assets/1cab2fb2-cd8f-4a50-9802-70479b2b48d0)
+
+
 ## Project Description
 
 The Random User Generator is a web application that fetches random user data from an API and displays it on the web page. Users can save the fetched user data in the session storage and view the saved users anytime during the session.
 
 ## Live [HERE](https://v-dav.github.io/random-user-generator/)
-![Skärmavbild 2024-08-21 kl  17 02 02](https://github.com/user-attachments/assets/78699988-3a54-49e1-9bd4-e008c52321fc)
+
 
 ## Features
 
